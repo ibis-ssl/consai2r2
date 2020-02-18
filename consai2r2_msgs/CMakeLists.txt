@@ -29,8 +29,13 @@ set(msg_files
   "msg/DetectionRobot.msg"
   "msg/DetectionFrame.msg"
   "msg/VisionDetections.msg"
+  "msg/RobotInfo.msg"
+  "msg/BallInfo.msg"
+  "msg/DecodedReferee.msg"
+  "msg/ReplaceBall.msg"
   "msg/RobotCommand.msg"
   "msg/RobotCommands.msg"
+  "msg/RobotStatus.msg"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
