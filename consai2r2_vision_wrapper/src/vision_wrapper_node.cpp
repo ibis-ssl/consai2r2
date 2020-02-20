@@ -48,8 +48,8 @@ public:
     pub_ball_ = this->create_publisher<consai2r2_msgs::msg::BallInfo>("~/ball_info", 1);
     pub_robot_[static_cast<uint8_t>(Color::BLUE)] =
       this->create_publisher<consai2r2_msgs::msg::RobotInfo>("~/robot_info_blue", 1);
-    pub_robot_[static_cast<uint8_t>(Color::YELLOW)] = this->create_publisher<consai2r2_msgs::msg::RobotInfo>(
-      "~/robot_info_yellow", 1);
+    pub_robot_[static_cast<uint8_t>(Color::YELLOW)] =
+      this->create_publisher<consai2r2_msgs::msg::RobotInfo>("~/robot_info_yellow", 1);
 
     robot_info_[static_cast<int>(Color::BLUE)].resize(max_id);
     robot_info_[static_cast<int>(Color::YELLOW)].resize(max_id);
@@ -57,7 +57,6 @@ public:
     enable_publish_ball = true;
     enable_publish_robot[static_cast<uint8_t>(Color::BLUE)] = true;
     enable_publish_robot[static_cast<uint8_t>(Color::YELLOW)] = true;
-
   }
 
   void visionDetectionsCallback(const consai2r2_msgs::msg::VisionDetections::SharedPtr msg)
@@ -175,6 +174,7 @@ private:
     geometry_msgs::msg::Pose2D sum_pose;
     //  角度計算用
     float sum_x, sum_y;
+    sum_x = sum_y = 0.f;
 
     for (auto detection : detections) {
       sum_pose.x += detection.pose.x;
