@@ -108,6 +108,8 @@ public:
   VisionReceiver()
   : Node("consai2r2_vision_receiver"), converter()
   {
+
+    std::cout << "start" << std::endl;
     std::string host;
     int port;
 
@@ -133,6 +135,7 @@ private:
     this->converter.frame_clear();
 
     while (receiver->available()) {
+      std::cout << "receive" << std::endl;
       std::vector<char> buf(2048);
       const size_t size = receiver->receive(buf);
 
@@ -159,6 +162,7 @@ private:
       rclcpp::Clock ros_clock(RCL_ROS_TIME);
       vision_detection.header.stamp = ros_clock.now();
       this->pub_detection->publish(vision_detection);
+      std::cout << "pub" << std::endl;
     }
   }
 

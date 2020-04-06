@@ -18,14 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <memory>
 #include <string>
 
-#include <stdio.h>
 #include "consai2r2_teleop/joystick_component.hpp"
 
 using namespace std::chrono_literals;
@@ -44,7 +42,8 @@ JoystickComponent::JoystickComponent(const rclcpp::NodeOptions & options)
       publish_robot_commands(msg);
     };
 
-  pub_commands_ = create_publisher<crane_msgs::msg::RobotCommands>("/bt_executor/robot_commands", 10);
+  pub_commands_ =
+    create_publisher<crane_msgs::msg::RobotCommands>("/bt_executor/robot_commands", 10);
   sub_joy_ = create_subscription<sensor_msgs::msg::Joy>("joy", 10, callback);
 }
 
@@ -58,7 +57,7 @@ void JoystickComponent::publish_robot_commands(const sensor_msgs::msg::Joy::Shar
 
   const double MAX_VEL_SURGE = 1.0;
   const double MAX_VEL_SWAY = 1.0;
-  const double MAX_VEL_ANGULAR = M_PI/15;
+  const double MAX_VEL_ANGULAR = M_PI / 15;
 
   crane_msgs::msg::RobotCommand command;
 
@@ -66,44 +65,35 @@ void JoystickComponent::publish_robot_commands(const sensor_msgs::msg::Joy::Shar
     command.target.x = msg->axes[AXIS_VEL_SURGE] * MAX_VEL_SURGE;
     command.target.y = msg->axes[AXIS_VEL_SWAY] * MAX_VEL_SWAY;
     theta = theta + msg->axes[AXIS_VEL_ANGULAR] * MAX_VEL_ANGULAR;
-    command.target.theta=theta;
-    if(msg->buttons[2]){
-      command.dribble_power=0.5;
-    }
-    else{
-      command.dribble_power=0.0;      
+    command.target.theta = theta;
+    if (msg->buttons[2]) {
+      command.dribble_power = 0.5;
+    } else {
+      command.dribble_power = 0.0;
     }
 
-    if(msg->buttons[4]){
-      if(msg->buttons[0]){
-        command.chip_enable=1;
+    if (msg->buttons[4]) {
+      if (msg->buttons[0]) {
+        command.chip_enable = 1;
+      } else {
+        command.chip_enable = 0;
       }
-      else{
-        command.chip_enable=0;
-      }
-      command.kick_power=0.5;
+      command.kick_power = 0.5;
+    } else {
+      command.kick_power = 0.0;
     }
-    else{
-      command.kick_power=0.0;      
-    }
-
-
-
-  }
-  else{
-    theta=0.0;
+  } else {
+    theta = 0.0;
   }
 
   command.robot_id = 0;
 
-
   crane_msgs::msg::RobotCommands robot_commands;
-  
   robot_commands.robot_commands.push_back(command);
-  
+
   pub_commands_->publish(robot_commands);
   printf("ID=%d Vx=%.3f Vy=%.3f theta=%.3f\r\n", command.robot_id, command.target.x,
-          command.target.y, command.target.theta);
+    command.target.y, command.target.theta);
 }
 
 
