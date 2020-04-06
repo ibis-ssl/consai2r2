@@ -25,10 +25,12 @@
 #include <memory>
 #include <string>
 
+#include <stdio.h>
 #include "consai2r2_teleop/joystick_component.hpp"
 
 using namespace std::chrono_literals;
 
+float theta;
 
 namespace joystick
 {
@@ -42,40 +44,66 @@ JoystickComponent::JoystickComponent(const rclcpp::NodeOptions & options)
       publish_robot_commands(msg);
     };
 
-  pub_commands_ = create_publisher<consai2r2_msgs::msg::RobotCommands>("robot_commands", 10);
+  pub_commands_ = create_publisher<crane_msgs::msg::RobotCommands>("/bt_executor/robot_commands", 10);
   sub_joy_ = create_subscription<sensor_msgs::msg::Joy>("joy", 10, callback);
 }
 
 void JoystickComponent::publish_robot_commands(const sensor_msgs::msg::Joy::SharedPtr msg)
 {
   // FIXME: WE HAVE TO USE ROS_PARAM
-  const int BUTTON_SHUTDOWN_1 = 8;
-  const int BUTTON_SHUTDOWN_2 = 8;
-  const int BUTTON_MOVE_ENABLE = 4;
+  const int BUTTON_MOVE_ENABLE = 1;
   const int AXIS_VEL_SURGE = 1;
   const int AXIS_VEL_SWAY = 0;
-  const int AXIS_VEL_ANGULAR = 2;
+  const int AXIS_VEL_ANGULAR = 3;
 
   const double MAX_VEL_SURGE = 1.0;
   const double MAX_VEL_SWAY = 1.0;
-  const double MAX_VEL_ANGULAR = M_PI;
+  const double MAX_VEL_ANGULAR = M_PI/15;
 
-  consai2r2_msgs::msg::RobotCommand command;
+  crane_msgs::msg::RobotCommand command;
 
   if (msg->buttons[BUTTON_MOVE_ENABLE]) {
-    command.vel_surge = msg->axes[AXIS_VEL_SURGE] * MAX_VEL_SURGE;
-    command.vel_sway = msg->axes[AXIS_VEL_SWAY] * MAX_VEL_SWAY;
-    command.vel_angular = msg->axes[AXIS_VEL_ANGULAR] * MAX_VEL_ANGULAR;
+    command.target.x = msg->axes[AXIS_VEL_SURGE] * MAX_VEL_SURGE;
+    command.target.y = msg->axes[AXIS_VEL_SWAY] * MAX_VEL_SWAY;
+    theta = theta + msg->axes[AXIS_VEL_ANGULAR] * MAX_VEL_ANGULAR;
+    command.target.theta=theta;
+    if(msg->buttons[2]){
+      command.dribble_power=0.5;
+    }
+    else{
+      command.dribble_power=0.0;      
+    }
+
+    if(msg->buttons[4]){
+      if(msg->buttons[0]){
+        command.chip_enable=1;
+      }
+      else{
+        command.chip_enable=0;
+      }
+      command.kick_power=0.5;
+    }
+    else{
+      command.kick_power=0.0;      
+    }
+
+
+
+  }
+  else{
+    theta=0.0;
   }
 
   command.robot_id = 0;
 
-  consai2r2_msgs::msg::RobotCommands robot_commands;
-  robot_commands.header.stamp = this->now();
-  robot_commands.is_yellow = false;
-  robot_commands.commands.push_back(command);
 
+  crane_msgs::msg::RobotCommands robot_commands;
+  
+  robot_commands.robot_commands.push_back(command);
+  
   pub_commands_->publish(robot_commands);
+  printf("ID=%d Vx=%.3f Vy=%.3f theta=%.3f\r\n", command.robot_id, command.target.x,
+          command.target.y, command.target.theta);
 }
 
 

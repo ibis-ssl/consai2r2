@@ -21,7 +21,7 @@
 #ifndef CONSAI2R2_TELEOP__JOYSTICK_COMPONENT_HPP_
 #define CONSAI2R2_TELEOP__JOYSTICK_COMPONENT_HPP_
 
-#include "consai2r2_msgs/msg/robot_commands.hpp"
+#include "crane_msgs/msg/robot_commands.hpp"
 #include "consai2r2_teleop/visibility_control.h"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joy.hpp"
@@ -36,7 +36,7 @@ public:
   explicit JoystickComponent(const rclcpp::NodeOptions & options);
 
 private:
-  rclcpp::Publisher<consai2r2_msgs::msg::RobotCommands>::SharedPtr pub_commands_;
+  rclcpp::Publisher<crane_msgs::msg::RobotCommands>::SharedPtr pub_commands_;
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr sub_joy_;
 
   void publish_robot_commands(const sensor_msgs::msg::Joy::SharedPtr msg);

@@ -16,7 +16,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(consai2r2_msgs REQUIRED)
+find_package(crane_msgs REQUIRED)
 
 include_directories(include)
 
@@ -27,7 +27,7 @@ ament_target_dependencies(joystick_component
   rclcpp_components
   std_msgs
   sensor_msgs
-  consai2r2_msgs
+  crane_msgs
 )
 rclcpp_components_register_nodes(joystick_component "joystick::JoystickComponent")
 
