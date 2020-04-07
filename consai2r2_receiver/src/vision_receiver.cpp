@@ -108,7 +108,6 @@ public:
   VisionReceiver()
   : Node("consai2r2_vision_receiver"), converter()
   {
-
     std::cout << "start" << std::endl;
     std::string host;
     int port;
