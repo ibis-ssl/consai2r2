@@ -23,7 +23,7 @@
 #include <memory>
 #include <string>
 
-#include "consai2r2_msgs/msg/robot_commands.hpp"
+#include "crane_msgs/msg/robot_commands.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 
@@ -69,29 +69,29 @@ public:
     auto host = this->get_parameter("grsim_addr").as_string();
     auto port = this->get_parameter("grsim_port").as_int();
 
-    sub_commands_ = this->create_subscription<consai2r2_msgs::msg::RobotCommands>(
+    sub_commands_ = this->create_subscription<crane_msgs::msg::RobotCommands>(
       "robot_commands", 10, std::bind(&SimSender::send_commands, this, std::placeholders::_1));
 
     udp_sender_ = std::make_shared<UDPSender>(host, port);
   }
 
 private:
-  void send_commands(const consai2r2_msgs::msg::RobotCommands::SharedPtr msg) const
+  void send_commands(const crane_msgs::msg::RobotCommands::SharedPtr msg) const
   {
     const double MAX_KICK_SPEED = 8.0;  // m/s
     grSim_Commands * packet_commands = new grSim_Commands();
 
-    packet_commands->set_timestamp(msg->header.stamp.sec);
+    // packet_commands->set_timestamp(msg->header.stamp.sec);
     packet_commands->set_isteamyellow(msg->is_yellow);
 
-    for (auto command : msg->commands) {
+    for (auto command : msg->robot_commands) {
       grSim_Robot_Command * robot_command = packet_commands->add_robot_commands();
       robot_command->set_id(command.robot_id);
 
       // 走行速度
-      robot_command->set_veltangent(command.vel_surge);
-      robot_command->set_velnormal(command.vel_sway);
-      robot_command->set_velangular(command.vel_angular);
+      robot_command->set_veltangent(command.target.x);
+      robot_command->set_velnormal(command.target.y);
+      robot_command->set_velangular(command.target.theta);
 
       // キック速度
       double kick_speed = command.kick_power * MAX_KICK_SPEED;
@@ -119,7 +119,7 @@ private:
     udp_sender_->send(output);
   }
 
-  rclcpp::Subscription<consai2r2_msgs::msg::RobotCommands>::SharedPtr sub_commands_;
+  rclcpp::Subscription<crane_msgs::msg::RobotCommands>::SharedPtr sub_commands_;
   std::shared_ptr<UDPSender> udp_sender_;
 };
 

@@ -14,7 +14,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(consai2r2_msgs REQUIRED)
+find_package(crane_msgs REQUIRED)
 find_package(consai2r2_protobuf REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
@@ -32,7 +32,7 @@ ament_target_dependencies(
   sim_sender
   "rclcpp"
   "std_msgs"
-  "consai2r2_msgs"
+  "crane_msgs"
 )
 target_link_libraries(sim_sender ${Boost_LIBRARIES} ${consai2r2_protobuf_LIBRARIES})
 
