@@ -81,7 +81,7 @@ private:
     const double MAX_KICK_SPEED = 8.0;  // m/s
     grSim_Commands * packet_commands = new grSim_Commands();
 
-    // packet_commands->set_timestamp(msg->header.stamp.sec);
+    packet_commands->set_timestamp(msg->header.stamp.sec);
     packet_commands->set_isteamyellow(msg->is_yellow);
 
     for (auto command : msg->robot_commands) {

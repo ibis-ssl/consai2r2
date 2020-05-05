@@ -43,7 +43,7 @@ public:
   : Node("vision_wrapper")
   {
     sub_vision_ = this->create_subscription<consai2r2_msgs::msg::VisionDetections>(
-      "consai2r2_vision_receiver/raw_detections",
+      "consai2r2_vision_receiver/raw_detections", 1,
       std::bind(&VisionWrapper::visionDetectionsCallback, this, std::placeholders::_1));
     pub_ball_ = this->create_publisher<consai2r2_msgs::msg::BallInfo>("~/ball_info", 1);
     pub_robot_[static_cast<uint8_t>(Color::BLUE)] =
