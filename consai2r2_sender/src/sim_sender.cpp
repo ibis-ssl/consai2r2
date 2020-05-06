@@ -76,7 +76,7 @@ public:
   }
 
 private:
-  float normalizeAngle(float angle_rad)
+  float normalizeAngle(float angle_rad) const
   {
     while (angle_rad > M_PI) {
       angle_rad -= 2.0f * M_PI;
@@ -87,7 +87,7 @@ private:
     return angle_rad;
   }
 
-  float getAngleDiff(float angle_rad1, float angle_rad2)
+  float getAngleDiff( float angle_rad1, float angle_rad2) const
   {
     angle_rad1 = normalizeAngle(angle_rad1);
     angle_rad2 = normalizeAngle(angle_rad2);
