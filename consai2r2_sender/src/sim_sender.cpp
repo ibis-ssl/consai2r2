@@ -40,7 +40,7 @@ class UDPSender
 {
 public:
   UDPSender(const std::string & ip, const int port)
-  : socket_(io_service_, asio::ip::udp::endpoint(asio::ip::udp::v4(), 0))
+    : socket_(io_service_, asio::ip::udp::endpoint(asio::ip::udp::v4(), 0))
   {
     asio::ip::udp::resolver resolver(io_service_);
     asio::ip::udp::resolver::query query(ip, std::to_string(port));
@@ -62,7 +62,7 @@ class SimSender : public rclcpp::Node
 {
 public:
   SimSender()
-  : Node("consai2r2_sim_sender")
+    : Node("consai2r2_sim_sender")
   {
     this->declare_parameter("grsim_addr", "127.0.0.1");
     this->declare_parameter("grsim_port", 20011);
@@ -76,6 +76,32 @@ public:
   }
 
 private:
+  float normalizeAngle(float angle_rad)
+  {
+    while (angle_rad > M_PI) {
+      angle_rad -= 2.0f * M_PI;
+    }
+    while (angle_rad < -M_PI) {
+      angle_rad += 2.0f * M_PI;
+    }
+    return angle_rad;
+  }
+
+  float getAngleDiff(float angle_rad1, float angle_rad2)
+  {
+    angle_rad1 = normalizeAngle(angle_rad1);
+    angle_rad2 = normalizeAngle(angle_rad2);
+    if (abs(angle_rad1 - angle_rad2) > M_PI) {
+      if(angle_rad1 - angle_rad2 > 0) {
+        return angle_rad1 - angle_rad2 - 2.0f * M_PI;
+      }else{
+        return angle_rad1 - angle_rad2 + 2.0f * M_PI;
+      }
+    } else {
+      return angle_rad1 - angle_rad2;
+    }
+  }
+
   void send_commands(const crane_msgs::msg::RobotCommands::SharedPtr msg) const
   {
     const double MAX_KICK_SPEED = 8.0;  // m/s
@@ -91,7 +117,9 @@ private:
       // 走行速度
       robot_command->set_veltangent(command.target.x);
       robot_command->set_velnormal(command.target.y);
-      robot_command->set_velangular(command.target.theta);
+
+      float diff = getAngleDiff(command.current_theta, command.target.theta);
+      robot_command->set_velangular(-diff);
 
       // キック速度
       double kick_speed = command.kick_power * MAX_KICK_SPEED;
@@ -121,6 +149,7 @@ private:
 
   rclcpp::Subscription<crane_msgs::msg::RobotCommands>::SharedPtr sub_commands_;
   std::shared_ptr<UDPSender> udp_sender_;
+  std::array<float,11> vel;
 };
 
 int main(int argc, char * argv[])
