@@ -40,7 +40,7 @@ class UDPSender
 {
 public:
   UDPSender(const std::string & ip, const int port)
-    : socket_(io_service_, asio::ip::udp::endpoint(asio::ip::udp::v4(), 0))
+  : socket_(io_service_, asio::ip::udp::endpoint(asio::ip::udp::v4(), 0))
   {
     asio::ip::udp::resolver resolver(io_service_);
     asio::ip::udp::resolver::query query(ip, std::to_string(port));
@@ -62,7 +62,7 @@ class SimSender : public rclcpp::Node
 {
 public:
   SimSender()
-    : Node("consai2r2_sim_sender")
+  : Node("consai2r2_sim_sender")
   {
     this->declare_parameter("grsim_addr", "127.0.0.1");
     this->declare_parameter("grsim_port", 20011);
@@ -87,14 +87,14 @@ private:
     return angle_rad;
   }
 
-  float getAngleDiff( float angle_rad1, float angle_rad2) const
+  float getAngleDiff(float angle_rad1, float angle_rad2) const
   {
     angle_rad1 = normalizeAngle(angle_rad1);
     angle_rad2 = normalizeAngle(angle_rad2);
     if (abs(angle_rad1 - angle_rad2) > M_PI) {
-      if(angle_rad1 - angle_rad2 > 0) {
+      if (angle_rad1 - angle_rad2 > 0) {
         return angle_rad1 - angle_rad2 - 2.0f * M_PI;
-      }else{
+      } else {
         return angle_rad1 - angle_rad2 + 2.0f * M_PI;
       }
     } else {
@@ -149,7 +149,7 @@ private:
 
   rclcpp::Subscription<crane_msgs::msg::RobotCommands>::SharedPtr sub_commands_;
   std::shared_ptr<UDPSender> udp_sender_;
-  std::array<float,11> vel;
+  std::array<float, 11> vel;
 };
 
 int main(int argc, char * argv[])
