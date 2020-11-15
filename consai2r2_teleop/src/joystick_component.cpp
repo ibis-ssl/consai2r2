@@ -43,14 +43,14 @@ JoystickComponent::JoystickComponent(const rclcpp::NodeOptions & options)
     };
 
   pub_commands_ =
-    create_publisher<crane_msgs::msg::RobotCommands>("/bt_executor/robot_commands", 10);
+    create_publisher<crane_msgs::msg::RobotCommands>("/robot_commands", 10);
   sub_joy_ = create_subscription<sensor_msgs::msg::Joy>("joy", 10, callback);
 }
 
 void JoystickComponent::publish_robot_commands(const sensor_msgs::msg::Joy::SharedPtr msg)
 {
   // FIXME: WE HAVE TO USE ROS_PARAM
-  const int BUTTON_MOVE_ENABLE = 1;
+  const int BUTTON_MOVE_ENABLE = 4;
   const int AXIS_VEL_SURGE = 1;
   const int AXIS_VEL_SWAY = 0;
   const int AXIS_VEL_ANGULAR = 3;
