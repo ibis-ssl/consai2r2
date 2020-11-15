@@ -119,7 +119,7 @@ private:
       robot_command->set_velnormal(command.target.y);
 
       float diff = getAngleDiff(command.current_theta, command.target.theta);
-      robot_command->set_velangular(-diff);
+      robot_command->set_velangular(-10.0*diff);
 
       // キック速度
       double kick_speed = command.kick_power * MAX_KICK_SPEED;
