@@ -24,6 +24,7 @@
 #include <string>
 
 #include "crane_msgs/msg/robot_commands.hpp"
+#include "consai2r2_msgs/msg/replacements.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 
@@ -71,11 +72,12 @@ public:
 
     sub_commands_ = this->create_subscription<crane_msgs::msg::RobotCommands>(
       "robot_commands", 10, std::bind(&SimSender::send_commands, this, std::placeholders::_1));
-
+    sub_replacement_ = this->create_subscription<consai2r2_msgs::msg::Replacements>(
+      "sim_sender/replacements", 10, std::bind(&SimSender::send_replacement, this, std::placeholders::_1));
     udp_sender_ = std::make_shared<UDPSender>(host, port);
   }
 
-private:
+//private:
   float normalizeAngle(float angle_rad) const
   {
     while (angle_rad > M_PI) {
@@ -144,18 +146,73 @@ private:
 
     std::string output;
     packet.SerializeToString(&output);
+    std::cout << output << std::endl;
+    udp_sender_->send(output);
+  }
+
+  void send_replacement(const consai2r2_msgs::msg::Replacements::SharedPtr msg) const
+  {
+
+    auto replacement = new grSim_Replacement();
+    if(msg->ball.is_enabled){
+        auto replace_ball = new grSim_BallReplacement();
+        replace_ball->set_x(msg->ball.x);
+        replace_ball->set_y(msg->ball.y);
+        replace_ball->set_vx(msg->ball.vx);
+        replace_ball->set_vy(msg->ball.vy);
+        replacement->set_allocated_ball(replace_ball);
+    }
+    for(auto robot : msg->robots){
+        auto replace_robot = replacement->add_robots();
+        replace_robot->set_x(robot.x);
+        replace_robot->set_y(robot.y);
+        replace_robot->set_dir(robot.dir);
+        replace_robot->set_id(robot.id);
+        replace_robot->set_yellowteam(robot.yellowteam);
+        replace_robot->set_turnon(robot.turnon);
+    }
+    auto packet = new grSim_Packet();
+    packet->set_allocated_replacement(replacement);
+
+    std::cout << "output" << std::endl;
+    std::string output;
+    packet->SerializeToString(&output);
+    std::cout << output << std::endl;
     udp_sender_->send(output);
   }
 
   rclcpp::Subscription<crane_msgs::msg::RobotCommands>::SharedPtr sub_commands_;
+  rclcpp::Subscription<consai2r2_msgs::msg::Replacements>::SharedPtr sub_replacement_;
   std::shared_ptr<UDPSender> udp_sender_;
   std::array<float, 11> vel;
 };
 
+void test(std::make_shared<SimSender> node){
+    auto replacement = std::make_shared<consai2r2_msgs::msg::Replacements>();
+    replacement->ball.is_enabled = true;
+    replacement->ball.x = 0;
+    replacement->ball.y = 0;
+    replacement->ball.vx = 1.0;
+    replacement->ball.vy = 1.0;
+
+    consai2r2_msgs::msg::ReplaceRobot robot_msg;
+    robot_msg.is_enabled = true;
+    robot_msg.x = 0.0;
+    robot_msg.y = 0.0;
+    robot_msg.vx = 1.0;
+    robot_msg.vy = 1.0;
+    robot_msg.id = 1;
+    robot_msg.dir = 1.57;
+    robot_msg.turnon = true;
+    replacement->robots.push_back(robot_msg);
+    node->send_replacement(replacement);
+}
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<SimSender>());
+  auto node = std::make_shared<SimSender>();
+//  test(node);
+  rclcpp::spin(node);
   rclcpp::shutdown();
   return 0;
 }
