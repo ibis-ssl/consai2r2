@@ -187,7 +187,7 @@ public:
   std::array<float, 11> vel;
 };
 
-void test(std::make_shared<SimSender> node){
+void test(std::shared_ptr<SimSender> node){
     auto replacement = std::make_shared<consai2r2_msgs::msg::Replacements>();
     replacement->ball.is_enabled = true;
     replacement->ball.x = 0;
@@ -196,11 +196,8 @@ void test(std::make_shared<SimSender> node){
     replacement->ball.vy = 1.0;
 
     consai2r2_msgs::msg::ReplaceRobot robot_msg;
-    robot_msg.is_enabled = true;
     robot_msg.x = 0.0;
     robot_msg.y = 0.0;
-    robot_msg.vx = 1.0;
-    robot_msg.vy = 1.0;
     robot_msg.id = 1;
     robot_msg.dir = 1.57;
     robot_msg.turnon = true;
