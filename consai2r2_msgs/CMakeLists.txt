@@ -33,6 +33,8 @@ set(msg_files
   "msg/BallInfo.msg"
   "msg/DecodedReferee.msg"
   "msg/ReplaceBall.msg"
+  "msg/ReplaceRobot.msg"
+  "msg/Replacements.msg"
   "msg/RobotCommand.msg"
   "msg/RobotCommands.msg"
   "msg/RobotStatus.msg"
